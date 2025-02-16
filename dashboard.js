@@ -9,7 +9,10 @@ import {
   query,
   where,
   orderBy,
-  Timestamp 
+  Timestamp,
+  deleteDoc,
+  updateDoc, 
+  doc
 } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 import { auth, db } from "./config.js";
 const form = document.querySelector("#form");
@@ -18,6 +21,8 @@ const mind = document.querySelector("#mind");
 const profileImg = document.querySelector("#profileImg");
 const username = document.querySelector("#username");
 const blogsContainer = document.querySelector("#blogsContainer");
+const delBtn=document.querySelectorAll('.delBtn');
+  const editBtn=document.querySelectorAll('.editBtn');
 let currentUser = null;
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -76,48 +81,80 @@ form.addEventListener("submit", async (event) => {
   }
 });
 const displayUserBlogs = async (uid) => {
-    blogsContainer.innerHTML = "";
-  
-    const q = query(
-      collection(db, "blogs"),
-      where("uid", "==", uid),
-      where("type", "==", "blog"),
-      orderBy("createdAt", "desc")
-    );
-  
-    try {
-      const querySnapshot = await getDocs(q);
-  
-      querySnapshot.forEach((doc) => {
-        const blogData = doc.data();
-        const blogElement = document.createElement("div");
-        blogElement.classList.add("blog");
-        let formattedDate = "N/A";
-        if (blogData.createdAt && blogData.createdAt.seconds) {
-          const date = blogData.createdAt.toDate();
-          formattedDate = date.toLocaleString();
-        }
-        blogElement.innerHTML = `
-          <div class="card">
-            <div class="title">
-              <img src="${blogData.image}" alt="" />
-              <div class="about">
-                <p>${blogData.text}</p>
-                <span>By: ${blogData.fullName} , Date: ${formattedDate}</span>
-              </div>
+  blogsContainer.innerHTML = "";
+  const blogIds = []; 
+
+  const q = query(
+    collection(db, "blogs"),
+    where("uid", "==", uid),
+    where("type", "==", "blog"),
+    orderBy("createdAt", "desc")
+  );
+
+  try {
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((docSnap) => { 
+      const blogData = docSnap.data();
+      const blogElement = document.createElement("div");
+      blogElement.classList.add("blog");
+
+      let formattedDate = "N/A";
+      if (blogData.createdAt && blogData.createdAt.seconds) {
+        const date = blogData.createdAt.toDate();
+        formattedDate = date.toLocaleString();
+      }
+
+      blogElement.innerHTML = `
+        <div class="card">
+          <div class="title">
+            <img src="${blogData.image}" alt="" />
+            <div class="about">
+              <p>${blogData.text}</p>
+              <span>By: ${blogData.fullName} , Date: ${formattedDate}</span>
             </div>
-            <div class="des">${blogData.mind}</div>
           </div>
-        `;
-        blogsContainer.appendChild(blogElement);
+          <div class="des">${blogData.mind}</div>
+
+           <div class="stylebtn">
+        <button class="delBtn">Delete</button>
+          <button class="editBtn">Edit</button>
+        </div>
+        </div>
+      `;
+      
+      blogsContainer.appendChild(blogElement);
+      blogIds.push(docSnap.id); 
+
+      
+      const delBtn = blogElement.querySelector(".delBtn");
+      delBtn.addEventListener("click", async () => {
+        await deleteDoc(doc(db, "blogs", docSnap.id)); 
+        console.log("Blog deleted");
+        displayUserBlogs(uid);
       });
-    } catch (error) {
-      console.error("Error displaying blogs:", error);
-    }
-  };
-  
-  
-  
+
+     
+      const editBtn = blogElement.querySelector(".editBtn");
+      editBtn.addEventListener("click", async () => {
+        const updatedText = prompt("Enter new text:", blogData.text);
+        const updatedMind = prompt("Enter new mind:", blogData.mind);
+
+        if (updatedText && updatedMind) {
+          const blogToUpdate = doc(db, "blogs", docSnap.id); 
+          await updateDoc(blogToUpdate, {
+            text: updatedText,
+            mind: updatedMind,
+          });
+          console.log("Blog updated");
+          displayUserBlogs(uid); 
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Error displaying blogs:", error);
+  }
+};
 
 logoutbtn.addEventListener('click', () => {
     signOut(auth).then(() => {
