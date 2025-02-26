@@ -13,11 +13,11 @@ import {
   getDocs,
 } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
-// Get DOM elements
-const fullNameHeader = document.querySelector("#username"); // Header Name
-const fullNameCard = document.querySelector("#usernamee h2"); // Card Name
-const profileImgHeader = document.querySelector("#profileImg"); // Header Image
-const profileImgCard = document.querySelector("#profile img"); // Card Image
+
+const fullNameHeader = document.querySelector("#username"); 
+const fullNameCard = document.querySelector("#usernamee h2"); 
+const profileImgHeader = document.querySelector("#profileImg"); 
+const profileImgCard = document.querySelector("#profile img"); 
 
 const oldPassword = document.querySelector("#oldPassword");
 const newPassword = document.querySelector("#newPassword");
@@ -28,7 +28,6 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("User is logged in:", user.uid);
 
-    // Query the blogs collection for documents with the matching uid
     const blogsRef = collection(db, "blogs");
     const q = query(blogsRef, where("uid", "==", user.uid));
 
@@ -40,11 +39,9 @@ onAuthStateChanged(auth, async (user) => {
           console.log("Document Data:", doc.data());
           const userData = doc.data();
 
-          // Update Header Name and Image
           fullNameHeader.textContent = userData.fullName;
           profileImgHeader.src = userData.image;
 
-          // Update Card Name and Image
           fullNameCard.textContent = userData.fullName;
           profileImgCard.src = userData.image;
         });
@@ -59,7 +56,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Update Password
 updateButton.addEventListener("click", async (e) => {
   e.preventDefault();
 
@@ -77,14 +73,11 @@ updateButton.addEventListener("click", async (e) => {
   const credential = EmailAuthProvider.credential(user.email, oldPassword.value);
 
   try {
-    // Reauthenticate with the old password
     await reauthenticateWithCredential(user, credential);
 
-    // Update to the new password
     await updatePassword(user, newPassword.value);
     alert("Password updated successfully!");
 
-    // Clear input fields
     oldPassword.value = "";
     newPassword.value = "";
     repeatPassword.value = "";
