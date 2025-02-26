@@ -329,15 +329,15 @@
     <div class="container">
       <div class="card">
         <div id="profile"><img src="https://cdn.britannica.com/05/236505-050-17B6E34A/Elon-Musk-2022.jpg" alt="profile image"/> </div>
-        <div class="user"><h2>Elon musk</h2>
+        <div class="user" id="usernamee"><h2>Elon musk</h2>
             <Span id="password">Password</Span>
         </div>
         <div class="profileform">
             <form id="submit">
-                <input type="password" placeholder="Old password">
-                <input type="password" placeholder="New password">
-                <input type="password" placeholder="Repeat password">
-                <button>Update password</button>
+              <input type="password" id="oldPassword" placeholder="Old password">
+              <input type="password" id="newPassword" placeholder="New password">
+              <input type="password" id="repeatPassword" placeholder="Repeat password">
+              <button id="updateButton">Update password</button>
 
                 
             </form>
@@ -347,6 +347,6 @@
         
     </div>
 
-    <script type="module" src="dashboard.js"></script>
+    <script type="module" src="profile.js"></script>
   </body>
 </html>
